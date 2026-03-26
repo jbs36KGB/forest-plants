@@ -128,15 +128,6 @@
       display: block;
     }
 
-    .hero-subtitle {
-      font-size: clamp(0.9rem, 2vw, 1.1rem);
-      font-weight: 300;
-      color: rgba(245,240,232,0.7);
-      line-height: 1.8;
-      margin-bottom: 3rem;
-      animation: fade-in 1s ease 0.6s both;
-    }
-
     @keyframes fade-in {
       from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -213,11 +204,6 @@
       font-size: 1.6rem;
       color: var(--cream);
     }
-    .section-label .divider {
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(to right, rgba(106,171,94,0.4), transparent);
-    }
     .result-count {
       font-size: 0.85rem;
       color: var(--moss);
@@ -254,10 +240,8 @@
       border: 1px solid rgba(180,60,60,0.3);
       border-radius: 1rem;
       padding: 1.5rem 2rem;
-      margin-bottom: 2rem;
     }
     .error-box.active { display: flex; }
-    .error-box p { color: #e07070; font-size: 0.95rem; text-align: center; }
 
     .plant-grid {
       display: grid;
@@ -273,51 +257,25 @@
       transition: transform 0.3s, border-color 0.3s;
       cursor: pointer;
     }
-    .plant-card:hover {
-      transform: translateY(-6px);
-      border-color: rgba(106,171,94,0.5);
-    }
-
     .card-img {
-      width: 100%;
-      height: 200px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 100%; height: 200px; display: flex; align-items: center; justify-content: center;
       background: linear-gradient(135deg, var(--forest-mid), var(--forest-green));
-      overflow: hidden;
     }
     .card-img img { width: 100%; height: 100%; object-fit: cover; }
-
     .card-body { padding: 1.4rem 1.6rem 1.6rem; }
     .card-name { font-family: 'Nanum Myeongjo', serif; font-size: 1.4rem; color: var(--cream); margin-bottom: 0.5rem; }
     .card-desc { font-size: 0.88rem; color: rgba(245,240,232,0.65); line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
     /* ── MODAL ── */
     .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      backdrop-filter: blur(6px);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(6px);
+      z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s;
     }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
     .modal {
-      background: #1a3320;
-      border-radius: 1.5rem;
-      max-width: 680px;
-      width: 90%;
-      max-height: 85vh;
-      overflow-y: auto;
-      position: relative;
+      background: #1a3320; border-radius: 1.5rem; max-width: 680px; width: 90%; max-height: 85vh; overflow-y: auto; position: relative;
     }
-    .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.5); border: none; color: white; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; z-index: 10; }
+    .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.5); border: none; color: white; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; }
 
     footer { padding: 3rem; text-align: center; font-size: 0.8rem; color: rgba(255,255,255,0.2); }
   </style>
@@ -329,9 +287,7 @@
   <svg class="trees" viewBox="0 0 1440 400" preserveAspectRatio="none">
     <g fill="#0d1f0f"><polygon points="-20,400 80,230 180,400"/><polygon points="260,400 370,160 480,400"/><polygon points="620,400 730,190 840,400"/></g>
   </svg>
-  
   <div class="particles" id="particles"></div>
-
   <div class="hero-content">
     <div class="hero-badge">🌿 산림청 공공데이터 기반 식물 도감</div>
     <h1 class="hero-title">숲의 식물<span>도감</span></h1>
@@ -346,7 +302,7 @@
 
 <section class="results-section" id="resultsSection" style="display:none;">
   <div class="section-label">
-    <h2 id="resultsTitle">검색 결과</h2>
+    <h2>검색 결과</h2>
     <div class="result-count" id="resultCount"></div>
   </div>
   <div class="loading" id="loading"><div class="loading-ring"></div><p>데이터를 불러오는 중입니다...</p></div>
@@ -357,7 +313,7 @@
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">X</button>
-    <div id="modalContent" style="padding: 2.5rem; line-height: 1.8;"></div>
+    <div id="modalContent" style="padding: 2.5rem;"></div>
   </div>
 </div>
 
@@ -366,81 +322,69 @@
 </footer>
 
 <script>
+  // 1. API 설정
   const API_KEY = 'eaa76c146cf0d0ad6adb733c6208d108ea5564be3b9de7c629d7c3279eb7c0d1';
-  const BASE_URL = 'http://api.forest.go.kr/openapi/service/cultureInfoService/fStoryOpenAPI';
+  const BASE_URL = 'https://api.forest.go.kr/openapi/service/cultureInfoService/fStoryOpenAPI';
 
+  // 배경 입자 효과
   function createParticles() {
     const container = document.getElementById('particles');
     if(!container) return; 
     for (let i = 0; i < 25; i++) {
       const p = document.createElement('div');
       p.className = 'particle';
-      p.style.cssText = `
-        left: ${Math.random() * 100}%;
-        width: ${Math.random() * 4 + 2}px;
-        height: ${Math.random() * 4 + 2}px;
-        animation-duration: ${Math.random() * 12 + 8}s;
-        animation-delay: ${Math.random() * 8}s;
-        --drift: ${(Math.random() - 0.5) * 120}px;
-      `;
+      p.style.cssText = `left:${Math.random()*100}%; width:${Math.random()*4+2}px; height:${Math.random()*4+2}px; animation-duration:${Math.random()*12+8}s; animation-delay:${Math.random()*8}s; --drift:${(Math.random()-0.5)*120}px;`;
       container.appendChild(p);
     }
   }
-
   window.onload = createParticles;
 
+  // 검색 이벤트 바인딩
   document.getElementById('searchBtn').addEventListener('click', doSearch);
-  document.getElementById('searchInput').addEventListener('keypress', (e) => {
-    if(e.key === 'Enter') doSearch();
-  });
-  
+  document.getElementById('searchInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') doSearch(); });
+
+  // 검색 함수
   async function doSearch() {
     const query = document.getElementById('searchInput').value.trim();
     if (!query) return alert('검색어를 입력하세요');
 
     const section = document.getElementById('resultsSection');
     const loading = document.getElementById('loading');
-    const errorBox = document.getElementById('errorBox');
     const plantGrid = document.getElementById('plantGrid');
+    const errorBox = document.getElementById('errorBox');
     const resultCount = document.getElementById('resultCount');
 
     section.style.display = 'block';
     section.scrollIntoView({ behavior: 'smooth' });
 
     loading.classList.add('active');
-    errorBox.classList.remove('active');
     plantGrid.innerHTML = '';
+    errorBox.classList.remove('active');
     resultCount.textContent = '';
 
     try {
-      // 1. API 요청 URL 생성 (산림청 API)
-      const targetUrl = `${BASE_URL}?serviceKey=${API_KEY}&storyse=${encodeURIComponent(query)}&numOfRows=10&pageNo=1`;
+      // 키 안전 인코딩 처리
+      const pureKey = encodeURIComponent(decodeURIComponent(API_KEY));
+      const targetUrl = `${BASE_URL}?serviceKey=${pureKey}&storyse=${encodeURIComponent(query)}&numOfRows=10&pageNo=1`;
       
-      // 2. allorigins 프록시 사용 (CORS 회피 및 안정적 연결)
+      // allorigins 프록시 사용 (보안 및 접속 장애 방지)
       const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
       
       const res = await fetch(proxyUrl);
-      if (!res.ok) throw new Error('네트워크 연결이 원활하지 않습니다.');
+      if (!res.ok) throw new Error('서버와 통신이 원활하지 않습니다.');
       
       const data = await res.json();
-      const xmlString = data.contents; // allorigins는 실제 응답을 contents에 담아줌
-      
       const parser = new DOMParser();
-      const xml = parser.parseFromString(xmlString, 'application/xml');
+      const xml = parser.parseFromString(data.contents, 'application/xml');
       
-      // 결과 코드 확인
-      const resultCode = xml.querySelector('resultCode')?.textContent;
-      if (resultCode !== '00' && resultCode !== '0000') {
-        const msg = xml.querySelector('resultMsg')?.textContent || '데이터 호출 에러';
-        throw new Error(msg);
-      }
-
       const items = xml.querySelectorAll('item');
       loading.classList.remove('active');
       
       if (items.length === 0) {
         resultCount.textContent = '0건';
-        alert('검색 결과가 없습니다.');
+        const msg = xml.querySelector('resultMsg')?.textContent;
+        if(msg && msg !== 'OK') alert(`API 메시지: ${msg}`);
+        else alert('검색 결과가 없습니다.');
         return;
       }
 
@@ -448,7 +392,7 @@
 
       items.forEach(item => {
         const name = item.querySelector('storyname')?.textContent || '이름 없음';
-        const desc = item.querySelector('content')?.textContent || '설명이 없습니다.';
+        const desc = item.querySelector('content')?.textContent || '설명 없음';
         const img = item.querySelector('imgurl')?.textContent || '';
         
         const card = document.createElement('div');
@@ -462,9 +406,9 @@
         `;
         card.onclick = () => {
           document.getElementById('modalContent').innerHTML = `
-            <h2 style="font-family:'Nanum Myeongjo',serif; margin-bottom:1rem; color:var(--spring);">${name}</h2>
+            <h2 style="font-family:'Nanum Myeongjo',serif; color:var(--spring); margin-bottom:1rem;">${name}</h2>
             <hr style="border:0; height:1px; background:rgba(255,255,255,0.1); margin-bottom:1.5rem;">
-            <p style="font-size:1rem; color:var(--cream);">${desc}</p>
+            <p style="font-size:1rem; color:var(--cream); line-height:1.8;">${desc}</p>
           `;
           document.getElementById('modalOverlay').classList.add('open');
         };
@@ -473,19 +417,13 @@
     } catch (e) {
       loading.classList.remove('active');
       errorBox.classList.add('active');
-      document.getElementById('errorMsg').textContent = `오류 발생: ${e.message} (API 키 활성화 대기 중일 수 있습니다.)`;
+      document.getElementById('errorMsg').textContent = `오류: ${e.message}`;
+      console.error(e);
     }
   }
 
-  function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('open');
-  }
-
-  // 외부 클릭 시 모달 닫기
-  window.onclick = (e) => {
-    const modal = document.getElementById('modalOverlay');
-    if (e.target === modal) closeModal();
-  }
+  function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+  window.onclick = (e) => { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
 </script>
 
 </body>
