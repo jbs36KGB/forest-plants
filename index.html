@@ -1,94 +1,217 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>숲 식물 검색</title>
-<style>
-body {
-  background:#0d1f0f;
-  color:white;
-  font-family:sans-serif;
-  text-align:center;
-  padding:50px;
-}
-input {
-  padding:10px;
-  width:250px;
-}
-button {
-  padding:10px;
-}
-.card {
-  background:#1a3320;
-  margin:15px;
-  padding:15px;
-  border-radius:10px;
-}
-</style>
-</head>
-<body>
-
-<h1>🌿 숲 식물 검색</h1>
-
-<input id="searchInput" placeholder="식물 이름 입력">
-<button onclick="search()">검색</button>
-
-<div id="result"></div>
-
 <script>
-const API_KEY = "eaa76c146cf0d0ad6adb733c6208d108ea5564be3b9de7c629d7c3279eb7c0d1";
-const BASE_URL = "http://api.forest.go.kr/";
+  const API_KEY = 'eaa76c146cf0d0ad6adb733c6208d108ea5564be3b9de7c629d7c3279eb7c0d1';
+  // 1. BASE_URL 끝에 fStoryOpenAPI가 정확히 붙어있는지 확인
+  const BASE_URL = 'https://api.forest.go.kr/openapi/service/cultureInfoService/fStoryOpenAPI';
 
-async function search() {
-  const query = document.getElementById("searchInput").value;
-  if (!query) {
-    alert("검색어 입력해라");
-    return;
+  // ── Particles (디자인 유지)
+  (function createParticles() {
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 25; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.cssText = `
+        left: ${Math.random() * 100}%;
+        width: ${Math.random() * 4 + 2}px;
+        height: ${Math.random() * 4 + 2}px;
+        animation-duration: ${Math.random() * 12 + 8}s;
+        animation-delay: ${Math.random() * 8}s;
+        --drift: ${(Math.random() - 0.5) * 120}px;
+        opacity: 0;
+      `;
+      container.appendChild(p);
+    }
+  })();
+
+  // ── Search
+  document.getElementById('searchBtn').addEventListener('click', doSearch);
+  document.getElementById('searchInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch();
+  });
+
+  function quickSearch(term) {
+    document.getElementById('searchInput').value = term;
+    doSearch();
   }
 
-  const resultDiv = document.getElementById("result");
-  resultDiv.innerHTML = "불러오는 중...";
+  let currentData = [];
 
-  try {
-    const url = `${BASE_URL}?serviceKey=${API_KEY}&numOfRows=10&pageNo=1&searchWord=${encodeURIComponent(query)}`;
-
-    // 👉 프록시 변경 (이게 핵심 수정)
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-    const res = await fetch(proxyUrl);
-    const text = await res.text();
-
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(text, "text/xml");
-
-    const items = xml.querySelectorAll("item");
-
-    if (items.length === 0) {
-      resultDiv.innerHTML = "결과 없음";
+  async function doSearch() {
+    const query = document.getElementById('searchInput').value.trim();
+    if (!query) {
+      alert('식물 이름을 입력해주세요.');
       return;
     }
 
-    let html = "";
+    const section = document.getElementById('resultsSection');
+    section.style.display = 'block';
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-    items.forEach(item => {
-      const name = item.querySelector("storyname")?.textContent || "이름 없음";
-      const desc = item.querySelector("content")?.textContent || "";
+    setLoading(true);
+    clearResults();
 
-      html += `
-        <div class="card">
-          <h3>${name}</h3>
-          <p>${desc}</p>
+    try {
+      // 2. 핵심 수정: searchWord 파라미터 추가 및 storyse에 쿼리 병합
+      // 산림청 API는 searchWord나 storyNm을 검색어로 인식하는 경우가 많습니다.
+      const url = `${BASE_URL}?serviceKey=${API_KEY}&numOfRows=20&pageNo=1&searchWord=${encodeURIComponent(query)}&storyse=${encodeURIComponent(query)}`;
+      
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+      
+      const res = await fetch(proxyUrl);
+      if (!res.ok) throw new Error(`HTTP 오류: ${res.status} (프록시 서버 응답 없음)`);
+
+      const text = await res.text();
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(text, 'application/xml');
+
+      // API 오류 코드 확인
+      const resultCode = xml.querySelector('resultCode')?.textContent;
+      if (resultCode && !['00', '0000', 'OK'].includes(resultCode)) {
+        const resultMsg = xml.querySelector('resultMsg')?.textContent || '알 수 없는 API 오류';
+        throw new Error(resultMsg);
+      }
+
+      const items = xml.querySelectorAll('item');
+      currentData = Array.from(items).map(parseItem);
+
+      setLoading(false);
+      document.getElementById('resultsTitle').textContent = `"${query}" 검색 결과`;
+
+      if (currentData.length === 0) {
+        document.getElementById('emptyState').classList.add('active');
+        document.getElementById('resultCount').textContent = '0건';
+      } else {
+        document.getElementById('resultCount').textContent = `${currentData.length}건`;
+        renderCards(currentData);
+      }
+
+    } catch (err) {
+      setLoading(false);
+      showError(err.message);
+    }
+  }
+
+  function parseItem(item) {
+    const get = (tag) => {
+      const node = item.querySelector(tag);
+      return node ? node.textContent.trim() : '';
+    };
+
+    // 3. 데이터 매핑 보강: API마다 다른 태그 이름을 유연하게 잡아냅니다.
+    return {
+      no:      get('no'),
+      name:    get('storyname') || get('storyNm') || get('plantNm') || get('name') || '이름 없음',
+      sciName: get('sciname') || get('sciNm') || '',
+      season:  get('season') || get('blosmtime') || '',
+      type:    get('storyse') || get('type') || '',
+      place:   get('place') || get('forest') || '',
+      desc:    get('content') || get('desc') || get('description') || '',
+      imgUrl:  get('imgurl') || get('img') || get('imgUrl') || '',
+      height:  get('height') || '',
+      charct:  get('charct') || '',
+      usePurps: get('usepurps') || '',
+      growEnv:  get('growenv') || '',
+    };
+  }
+
+  // 이 아래 renderCards, closeModal 등 나머지 함수는 기존과 동일하게 유지됩니다.
+  function renderCards(plants) {
+    const grid = document.getElementById('plantGrid');
+    plants.forEach((p, i) => {
+      const card = document.createElement('div');
+      card.className = 'plant-card';
+      card.style.animationDelay = `${i * 0.07}s`;
+      card.innerHTML = `
+        ${p.imgUrl
+          ? `<div class="card-img"><img src="${p.imgUrl}" alt="${p.name}" onerror="this.parentElement.innerHTML=plantholderHtml()"/></div>`
+          : `<div class="card-img">${plantholderHtml()}</div>`
+        }
+        <div class="card-body">
+          <div class="card-tags">
+            ${p.season ? `<span class="tag tag-season">🌸 ${p.season}</span>` : ''}
+            ${p.type ? `<span class="tag tag-type">${p.type}</span>` : ''}
+          </div>
+          <div class="card-name">${p.name}</div>
+          ${p.sciName ? `<div class="card-name-sci">${p.sciName}</div>` : ''}
+          <p class="card-desc">${p.desc || '상세 정보를 클릭해서 확인하세요.'}</p>
+          <div class="card-footer">
+            <span class="card-more">자세히 보기 →</span>
+          </div>
         </div>
       `;
+      card.addEventListener('click', () => openModal(p));
+      grid.appendChild(card);
     });
-
-    resultDiv.innerHTML = html;
-
-  } catch (err) {
-    resultDiv.innerHTML = "에러 발생: " + err.message;
   }
-}
-</script>
 
-</body>
-</html>
+  function plantholderHtml() {
+    return `<div class="card-img-placeholder">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 22V12m0 0C12 6 6 4 3 7c3 0 7 2 9 5zm0 0c0-6 6-8 9-5-3 0-7 2-9 5"/>
+      </svg>
+      <span>이미지 없음</span>
+    </div>`;
+  }
+
+  function openModal(p) {
+    const content = document.getElementById('modalContent');
+    content.innerHTML = `
+      ${p.imgUrl
+        ? `<div class="modal-img"><img src="${p.imgUrl}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=modal-img-placeholder><svg viewBox=\\'0 0 24 24\\' width=\\'80\\' fill=\\'none\\' stroke=\\'white\\' stroke-width=\\'1\\'><path d=\\'M12 22V12m0 0C12 6 6 4 3 7c3 0 7 2 9 5zm0 0c0-6 6-8 9-5-3 0-7 2-9 5\\'/></svg></div>'"/></div>`
+        : `<div class="modal-img-placeholder" style="height:260px"><svg viewBox="0 0 24 24" width="80" fill="none" stroke="white" stroke-width="1"><path d="M12 22V12m0 0C12 6 6 4 3 7c3 0 7 2 9 5zm0 0c0-6 6-8 9-5-3 0-7 2-9 5"/></svg></div>`
+      }
+      <div class="modal-body">
+        <div class="modal-tags">
+          ${p.season ? `<span class="tag tag-season">🌸 ${p.season}</span>` : ''}
+          ${p.type ? `<span class="tag tag-type">${p.type}</span>` : ''}
+        </div>
+        <div class="modal-title">${p.name}</div>
+        ${p.sciName ? `<div class="modal-sci">${p.sciName}</div>` : ''}
+
+        <div class="info-grid">
+          ${p.height   ? infoItem('키/크기', p.height) : ''}
+          ${p.place    ? infoItem('서식지', p.place) : ''}
+          ${p.usePurps ? infoItem('이용 방법', p.usePurps) : ''}
+          ${p.growEnv  ? infoItem('생육 환경', p.growEnv) : ''}
+          ${p.charct   ? infoItem('특징', p.charct) : ''}
+        </div>
+
+        ${p.desc ? `
+          <div class="modal-desc-title">📖 상세 설명</div>
+          <p class="modal-desc">${p.desc}</p>
+        ` : ''}
+      </div>
+    `;
+    document.getElementById('modalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function infoItem(label, value) {
+    return `<div class="info-item"><div class="info-label">${label}</div><div class="info-value">${value}</div></div>`;
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
+
+  function setLoading(on) {
+    document.getElementById('loading').classList.toggle('active', on);
+  }
+
+  function clearResults() {
+    document.getElementById('plantGrid').innerHTML = '';
+    document.getElementById('errorBox').classList.remove('active');
+    document.getElementById('emptyState').classList.remove('active');
+    document.getElementById('resultCount').textContent = '';
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    document.getElementById('errorMsg').textContent = `오류 발생: ${msg}`;
+    box.classList.add('active');
+  }
+</script>
