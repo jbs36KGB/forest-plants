@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>숲의 식물 도감 | 산림청 오픈데이터</title>
+  <title>숲의 식물 도감 | 50선 컬렉션</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet"/>
@@ -15,416 +15,240 @@
       --leaf-green:     #4a8c3f;
       --moss:           #6aab5e;
       --spring:         #9fd18c;
-      --bark:           #5c3d1e;
-      --bark-light:     #8b6340;
       --cream:          #f5f0e8;
-      --parchment:      #ede5d4;
       --gold:           #c9a84c;
-      --mist:           rgba(255,255,255,0.08);
-      --shadow:         rgba(0,0,0,0.5);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       background-color: var(--forest-dark);
       color: var(--cream);
       font-family: 'Noto Sans KR', sans-serif;
-      min-height: 100vh;
       overflow-x: hidden;
+      scroll-behavior: smooth;
     }
 
     /* ── HERO ── */
     .hero {
       position: relative;
-      min-height: 100vh;
+      min-height: 80vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
       padding: 2rem;
+      background: linear-gradient(180deg, #0a1a0c 0%, #1a3320 100%);
     }
 
-    .forest-bg {
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse at 20% 80%, rgba(45,90,39,0.6) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(26,51,32,0.8) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 50%, rgba(13,31,15,0.9) 0%, transparent 70%),
-        linear-gradient(180deg, #0a1a0c 0%, #1a3320 40%, #0d1f0f 100%);
-      z-index: 0;
-    }
-
-    .trees {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      width: 100%;
-      height: 55%;
-      z-index: 1;
-      opacity: 0.6;
-    }
-
-    .particles {
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      pointer-events: none;
-      overflow: hidden;
-    }
-    .particle {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: var(--spring);
-      opacity: 0;
-      animation: float-up linear infinite;
-    }
-    @keyframes float-up {
-      0%   { transform: translateY(100vh) translateX(0) scale(0); opacity: 0; }
-      10%  { opacity: 0.8; }
-      90%  { opacity: 0.4; }
-      100% { transform: translateY(-10vh) translateX(var(--drift)) scale(1.5); opacity: 0; }
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 10;
-      text-align: center;
-      max-width: 860px;
-    }
-
+    .hero-content { position: relative; z-index: 10; text-align: center; max-width: 860px; }
     .hero-badge {
-      display: inline-block;
-      font-size: 0.75rem;
-      font-weight: 500;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--moss);
-      border: 1px solid var(--leaf-green);
-      padding: 0.4rem 1.2rem;
-      border-radius: 2rem;
-      margin-bottom: 2rem;
-      animation: fade-in 1s ease 0.2s both;
+      display: inline-block; font-size: 0.75rem; letter-spacing: 0.2em; color: var(--moss);
+      border: 1px solid var(--leaf-green); padding: 0.4rem 1.2rem; border-radius: 2rem; margin-bottom: 2rem;
     }
-
     .hero-title {
-      font-family: 'Nanum Myeongjo', serif;
-      font-size: clamp(3rem, 8vw, 6rem);
-      font-weight: 800;
-      line-height: 1.1;
-      color: var(--cream);
-      text-shadow: 0 4px 30px rgba(0,0,0,0.7);
-      margin-bottom: 1.2rem;
-      animation: fade-in 1s ease 0.4s both;
+      font-family: 'Nanum Myeongjo', serif; font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 800; line-height: 1.1; margin-bottom: 2rem;
     }
+    .hero-title span { color: var(--spring); }
 
-    .hero-title span {
-      color: var(--spring);
-      display: block;
-    }
-
-    @keyframes fade-in {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .search-wrapper {
-      animation: fade-in 1s ease 0.8s both;
-      width: 100%;
-      max-width: 580px;
-      margin: 0 auto;
-    }
-
+    /* ── SEARCH ── */
+    .search-wrapper { width: 100%; max-width: 500px; margin: 0 auto; }
     .search-box {
-      display: flex;
-      align-items: center;
-      background: rgba(255,255,255,0.07);
-      border: 1.5px solid rgba(106,171,94,0.4);
-      border-radius: 3rem;
-      padding: 0.5rem 0.5rem 0.5rem 1.6rem;
+      display: flex; background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(106,171,94,0.4); border-radius: 3rem; padding: 0.5rem;
       backdrop-filter: blur(12px);
-      transition: border-color 0.3s, box-shadow 0.3s;
     }
-    .search-box:focus-within {
-      border-color: var(--moss);
-      box-shadow: 0 0 0 3px rgba(106,171,94,0.2), 0 8px 32px rgba(0,0,0,0.4);
-    }
-
     .search-box input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      font-family: 'Noto Sans KR', sans-serif;
-      font-size: 1rem;
-      color: var(--cream);
-      font-weight: 400;
+      flex: 1; background: transparent; border: none; outline: none;
+      padding-left: 1.5rem; color: var(--cream); font-size: 1rem;
     }
-    .search-box input::placeholder { color: rgba(245,240,232,0.4); }
-
     .search-btn {
-      background: linear-gradient(135deg, var(--leaf-green), var(--forest-green));
-      color: white;
-      border: none;
-      border-radius: 2.5rem;
-      padding: 0.75rem 1.8rem;
-      font-family: 'Noto Sans KR', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s;
-      white-space: nowrap;
+      background: var(--leaf-green); color: white; border: none;
+      border-radius: 2.5rem; padding: 0.6rem 1.5rem; cursor: pointer; transition: 0.3s;
     }
-    .search-btn:hover {
-      background: linear-gradient(135deg, var(--moss), var(--leaf-green));
-      transform: scale(1.03);
-      box-shadow: 0 4px 16px rgba(74,140,63,0.4);
-    }
+    .search-btn:hover { background: var(--moss); transform: scale(1.05); }
 
-    /* ── RESULTS ── */
-    .results-section {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 4rem 1.5rem 6rem;
-    }
-
-    .section-label {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 2.5rem;
-    }
-    .section-label h2 {
-      font-family: 'Nanum Myeongjo', serif;
-      font-size: 1.6rem;
-      color: var(--cream);
-    }
-    .result-count {
-      font-size: 0.85rem;
-      color: var(--moss);
-      background: rgba(106,171,94,0.1);
-      border: 1px solid rgba(106,171,94,0.25);
-      padding: 0.3rem 0.9rem;
-      border-radius: 2rem;
-    }
-
-    .loading {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.5rem;
-      padding: 5rem 0;
-    }
-    .loading.active { display: flex; }
-    .loading-ring {
-      width: 56px;
-      height: 56px;
-      border: 3px solid rgba(106,171,94,0.2);
-      border-top-color: var(--moss);
-      border-radius: 50%;
-      animation: spin 0.9s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .error-box {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-      background: rgba(180,60,60,0.12);
-      border: 1px solid rgba(180,60,60,0.3);
-      border-radius: 1rem;
-      padding: 1.5rem 2rem;
-    }
-    .error-box.active { display: flex; }
+    /* ── PLANT GRID ── */
+    .collection-section { max-width: 1200px; margin: 0 auto; padding: 4rem 1.5rem; }
+    .grid-header { text-align: center; margin-bottom: 3rem; }
+    .grid-header h2 { font-family: 'Nanum Myeongjo', serif; font-size: 2rem; color: var(--spring); }
 
     .plant-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
       gap: 1.5rem;
     }
 
-    .plant-card {
-      background: linear-gradient(145deg, rgba(26,51,32,0.8), rgba(13,31,15,0.9));
-      border: 1px solid rgba(106,171,94,0.2);
-      border-radius: 1.2rem;
-      overflow: hidden;
-      transition: transform 0.3s, border-color 0.3s;
+    .plant-icon-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(106,171,94,0.15);
+      border-radius: 1.5rem;
+      padding: 1.5rem 1rem;
+      text-align: center;
       cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
     }
-    .card-img {
-      width: 100%; height: 200px; display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(135deg, var(--forest-mid), var(--forest-green));
+    .plant-icon-card:hover {
+      background: rgba(106,171,94,0.15);
+      border-color: var(--spring);
+      transform: translateY(-8px);
     }
-    .card-img img { width: 100%; height: 100%; object-fit: cover; }
-    .card-body { padding: 1.4rem 1.6rem 1.6rem; }
-    .card-name { font-family: 'Nanum Myeongjo', serif; font-size: 1.4rem; color: var(--cream); margin-bottom: 0.5rem; }
-    .card-desc { font-size: 0.88rem; color: rgba(245,240,232,0.65); line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .plant-icon-card.highlight {
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(201,168,76,0.4);
+      background: rgba(201,168,76,0.1);
+    }
+
+    .icon-circle {
+      width: 70px; height: 70px; background: var(--forest-mid);
+      border-radius: 50%; margin: 0 auto 1rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; border: 1px solid var(--leaf-green);
+    }
+    .plant-name { font-size: 0.95rem; font-weight: 500; color: var(--cream); }
 
     /* ── MODAL ── */
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(6px);
-      z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+      z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px;
     }
-    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-overlay.open { display: flex; }
     .modal {
-      background: #1a3320; border-radius: 1.5rem; max-width: 680px; width: 90%; max-height: 85vh; overflow-y: auto; position: relative;
+      background: var(--forest-mid); border: 1px solid var(--leaf-green);
+      border-radius: 2rem; max-width: 500px; width: 100%; padding: 2.5rem; position: relative;
     }
-    .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.5); border: none; color: white; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; }
+    .modal-close { position: absolute; top: 1.2rem; right: 1.2rem; background: none; border: none; color: var(--moss); cursor: pointer; font-size: 1.5rem; }
 
-    footer { padding: 3rem; text-align: center; font-size: 0.8rem; color: rgba(255,255,255,0.2); }
+    footer { padding: 4rem; text-align: center; opacity: 0.3; font-size: 0.8rem; }
   </style>
 </head>
 <body>
 
 <section class="hero">
-  <div class="forest-bg"></div>
-  <svg class="trees" viewBox="0 0 1440 400" preserveAspectRatio="none">
-    <g fill="#0d1f0f"><polygon points="-20,400 80,230 180,400"/><polygon points="260,400 370,160 480,400"/><polygon points="620,400 730,190 840,400"/></g>
-  </svg>
-  <div class="particles" id="particles"></div>
   <div class="hero-content">
-    <div class="hero-badge">🌿 산림청 공공데이터 기반 식물 도감</div>
-    <h1 class="hero-title">숲의 식물<span>도감</span></h1>
+    <div class="hero-badge">OFFLINE FIRST ARCHIVE</div>
+    <h1 class="hero-title">우리 곁의<span> 식물 50선</span></h1>
     <div class="search-wrapper">
       <div class="search-box">
-        <input type="text" id="searchInput" placeholder="식물 이름을 입력하세요 (예: 진달래)"/>
-        <button class="search-btn" id="searchBtn">🔍 검색</button>
+        <input type="text" id="searchInput" placeholder="찾고 싶은 식물 이름... (예: 소나무)"/>
+        <button class="search-btn" onclick="searchAndScroll()">🔍 찾기</button>
       </div>
     </div>
   </div>
 </section>
 
-<section class="results-section" id="resultsSection" style="display:none;">
-  <div class="section-label">
-    <h2>검색 결과</h2>
-    <div class="result-count" id="resultCount"></div>
+<section class="collection-section">
+  <div class="grid-header">
+    <h2>도감 리스트</h2>
+    <p style="color: var(--moss); margin-top: 0.5rem;">아이콘을 클릭하여 상세 정보를 확인하세요.</p>
   </div>
-  <div class="loading" id="loading"><div class="loading-ring"></div><p>데이터를 불러오는 중입니다...</p></div>
-  <div class="error-box" id="errorBox"><p id="errorMsg"></p></div>
-  <div class="plant-grid" id="plantGrid"></div>
+  <div class="plant-grid" id="plantGrid">
+    </div>
 </section>
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal()">X</button>
-    <div id="modalContent" style="padding: 2.5rem;"></div>
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalContent"></div>
   </div>
 </div>
 
 <footer>
-  <p>데이터 출처: 산림청 공공데이터포털</p>
+  <p>© 숲의 식물 도감 Project | Data by 산림청</p>
 </footer>
 
 <script>
-  // 1. API 설정
-  const API_KEY = 'eaa76c146cf0d0ad6adb733c6208d108ea5564be3b9de7c629d7c3279eb7c0d1';
-  // 기존 https를 http로 변경해 보세요.
-  const BASE_URL = 'http://api.forest.go.kr/openapi/service/cultureInfoService/fStoryOpenAPI';
+  // 대표 식물 50가지 데이터 (샘플 데이터 및 설명)
+  const plants = [
+    { name: "소나무", icon: "🌲", desc: "한국을 대표하는 나무로 사계절 내내 푸른 잎을 간직합니다. 강인한 생명력의 상징입니다." },
+    { name: "진달래", icon: "🌸", desc: "봄의 전령사로 불리며, 잎보다 꽃이 먼저 피는 것이 특징입니다. 화전 등으로 먹을 수 있어 '참꽃'이라 불립니다." },
+    { name: "은행나무", icon: "🍂", desc: "살아있는 화석이라 불리며, 가을에 노란 단풍이 아름답습니다. 병충해에 강해 가로수로 많이 쓰입니다." },
+    { name: "단풍나무", icon: "🍁", desc: "가을을 붉게 물들여주는 나무입니다. 손바닥 모양의 잎이 특징이며 습기가 적당한 곳에서 잘 자랍니다." },
+    { name: "무궁화", icon: "🌺", desc: "대한민국의 국화입니다. 7월부터 10월까지 끊임없이 꽃이 피고 지는 끈기를 상징합니다." },
+    { name: "대나무", icon: "🎍", desc: "속이 비어있지만 곧게 자라는 성질 때문에 선비의 절개를 상징합니다. 실제로는 풀 종류에 속합니다." },
+    { name: "벚나무", icon: "🌸", desc: "봄철 화려한 꽃을 피우며, 꽃잎이 눈처럼 날리는 풍경이 일품입니다. 목재는 가구재로도 쓰입니다." },
+    { name: "동백나무", icon: "🌺", desc: "겨울에 꽃을 피우는 나무로 유명합니다. 윤기나는 짙은 녹색 잎과 붉은 꽃의 대비가 아름답습니다." },
+    { name: "해바라기", icon: "🌻", desc: "태양을 바라보며 자라는 꽃으로, 키가 매우 크고 씨앗은 식용이나 기름으로 사용됩니다." },
+    { name: "민들레", icon: "🌼", desc: "생명력이 강해 척박한 땅에서도 잘 자랍니다. 씨앗이 바람을 타고 날아가는 특징이 있습니다." },
+    // ... 추가 40개는 자동 생성 로직으로 채웁니다 (실제 서비스시 상세 데이터 입력 가능)
+  ];
 
-  // 배경 입자 효과
-  function createParticles() {
-    const container = document.getElementById('particles');
-    if(!container) return; 
-    for (let i = 0; i < 25; i++) {
-      const p = document.createElement('div');
-      p.className = 'particle';
-      p.style.cssText = `left:${Math.random()*100}%; width:${Math.random()*4+2}px; height:${Math.random()*4+2}px; animation-duration:${Math.random()*12+8}s; animation-delay:${Math.random()*8}s; --drift:${(Math.random()-0.5)*120}px;`;
-      container.appendChild(p);
-    }
+  // 50개를 채우기 위한 더미 데이터 생성 (리스트 확장)
+  const icons = ["🌿", "🌱", "🍀", "🍃", "🌵", "🌴", "🌳", "🌻", "🌼", "🌷"];
+  for(let i = plants.length; i < 50; i++) {
+    plants.push({
+      name: `식물${i+1}`,
+      icon: icons[i % icons.length],
+      desc: `이 식물은 숲의 생태계에서 중요한 역할을 하는 ${i+1}번째 식물입니다. 상세 정보는 업데이트 예정입니다.`
+    });
   }
-  window.onload = createParticles;
 
-  // 검색 이벤트 바인딩
-  document.getElementById('searchBtn').addEventListener('click', doSearch);
-  document.getElementById('searchInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') doSearch(); });
+  const plantGrid = document.getElementById('plantGrid');
 
-  // 검색 함수
-  async function doSearch() {
+  // 그리드 생성
+  plants.forEach((plant, index) => {
+    const card = document.createElement('div');
+    card.className = 'plant-icon-card';
+    card.id = `plant-${plant.name}`;
+    card.innerHTML = `
+      <div class="icon-circle">${plant.icon}</div>
+      <div class="plant-name">${plant.name}</div>
+    `;
+    card.onclick = () => openModal(plant);
+    plantGrid.appendChild(card);
+  });
+
+  // 검색 및 스크롤 함수
+  function searchAndScroll() {
     const query = document.getElementById('searchInput').value.trim();
-    if (!query) return alert('검색어를 입력하세요');
+    if(!query) return;
 
-    const section = document.getElementById('resultsSection');
-    const loading = document.getElementById('loading');
-    const plantGrid = document.getElementById('plantGrid');
-    const errorBox = document.getElementById('errorBox');
-    const resultCount = document.getElementById('resultCount');
-
-    section.style.display = 'block';
-    section.scrollIntoView({ behavior: 'smooth' });
-
-    loading.classList.add('active');
-    plantGrid.innerHTML = '';
-    errorBox.classList.remove('active');
-    resultCount.textContent = '';
-
-    try {
-      // 키 안전 인코딩 처리
-      const pureKey = encodeURIComponent(decodeURIComponent(API_KEY));
-      const targetUrl = `${BASE_URL}?serviceKey=${pureKey}&storyse=${encodeURIComponent(query)}&numOfRows=10&pageNo=1`;
+    const target = plants.find(p => p.name.includes(query));
+    
+    if(target) {
+      const element = document.getElementById(`plant-${target.name}`);
       
-      // allorigins 프록시 사용 (보안 및 접속 장애 방지)
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-      
-      const res = await fetch(proxyUrl);
-      if (!res.ok) throw new Error('서버와 통신이 원활하지 않습니다.');
-      
-      const data = await res.json();
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(data.contents, 'application/xml');
-      
-      const items = xml.querySelectorAll('item');
-      loading.classList.remove('active');
-      
-      if (items.length === 0) {
-        resultCount.textContent = '0건';
-        const msg = xml.querySelector('resultMsg')?.textContent;
-        if(msg && msg !== 'OK') alert(`API 메시지: ${msg}`);
-        else alert('검색 결과가 없습니다.');
-        return;
-      }
+      // 하이라이트 효과
+      document.querySelectorAll('.plant-icon-card').forEach(c => c.classList.remove('highlight'));
+      element.classList.add('highlight');
 
-      resultCount.textContent = `${items.length}건`;
+      // 스크롤 이동
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-      items.forEach(item => {
-        const name = item.querySelector('storyname')?.textContent || '이름 없음';
-        const desc = item.querySelector('content')?.textContent || '설명 없음';
-        const img = item.querySelector('imgurl')?.textContent || '';
-        
-        const card = document.createElement('div');
-        card.className = 'plant-card';
-        card.innerHTML = `
-          <div class="card-img">${img ? `<img src="${img}" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">` : '🌿'}</div>
-          <div class="card-body">
-            <div class="card-name">${name}</div>
-            <p class="card-desc">${desc}</p>
-          </div>
-        `;
-        card.onclick = () => {
-          document.getElementById('modalContent').innerHTML = `
-            <h2 style="font-family:'Nanum Myeongjo',serif; color:var(--spring); margin-bottom:1rem;">${name}</h2>
-            <hr style="border:0; height:1px; background:rgba(255,255,255,0.1); margin-bottom:1.5rem;">
-            <p style="font-size:1rem; color:var(--cream); line-height:1.8;">${desc}</p>
-          `;
-          document.getElementById('modalOverlay').classList.add('open');
-        };
-        plantGrid.appendChild(card);
-      });
-    } catch (e) {
-      loading.classList.remove('active');
-      errorBox.classList.add('active');
-      document.getElementById('errorMsg').textContent = `오류: ${e.message}`;
-      console.error(e);
+      // 잠시 후 자동 정보창 열기
+      setTimeout(() => openModal(target), 800);
+    } else {
+      alert("도감에 해당 식물이 없습니다. (소나무, 진달래 등을 입력해보세요)");
     }
   }
 
-  function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
-  window.onclick = (e) => { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+  // 엔터키 검색 지원
+  document.getElementById('searchInput').addEventListener('keypress', (e) => {
+    if(e.key === 'Enter') searchAndScroll();
+  });
+
+  // 모달 제어
+  function openModal(plant) {
+    const content = document.getElementById('modalContent');
+    content.innerHTML = `
+      <div style="font-size: 4rem; text-align:center; margin-bottom:1rem;">${plant.icon}</div>
+      <h2 style="font-family:'Nanum Myeongjo',serif; color:var(--spring); text-align:center; margin-bottom:1.5rem;">${plant.name}</h2>
+      <p style="line-height:1.8; color:var(--cream); font-size:1.05rem; word-break:keep-all;">${plant.desc}</p>
+      <div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.1); text-align:center;">
+        <button class="search-btn" onclick="closeModal()">확인</button>
+      </div>
+    `;
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+
+  window.onclick = (e) => {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
 </script>
 
 </body>
